@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LM Autoservice – Meccanica · Elettronica · Gommista</title>
+  <meta name="description" content="Dalla manutenzione ordinaria alla diagnosi elettronica: LM Autoservice si prende cura della tua auto con professionalità e trasparenza.">
+
+  <style>
+    /* Font Poppins ospitato in locale (nessuna connessione a Google = niente dati inviati a terzi) */
+    @font-face { font-family: 'Poppins'; font-style: normal; font-weight: 400; font-display: swap; src: url('fonts/poppins-latin-400-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'Poppins'; font-style: normal; font-weight: 500; font-display: swap; src: url('fonts/poppins-latin-500-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'Poppins'; font-style: normal; font-weight: 600; font-display: swap; src: url('fonts/poppins-latin-600-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'Poppins'; font-style: normal; font-weight: 700; font-display: swap; src: url('fonts/poppins-latin-700-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'Poppins'; font-style: normal; font-weight: 800; font-display: swap; src: url('fonts/poppins-latin-800-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'Poppins'; font-style: normal; font-weight: 900; font-display: swap; src: url('fonts/poppins-latin-900-normal.woff2') format('woff2'); }
+
+    /* =========================================================
+       VARIABILI – cambia qui colori e misure
+       ========================================================= */
+    :root {
+      --red: #e30613;
+      --red-dark: #b8040f;
+      --dark: #141414;
+      --dark-2: #1e1e1e;
+      --light: #f2f2f2;
+      --grey: #6b6b6b;
+      --white: #ffffff;
+      --header-h: 96px;
+      --radius: 6px;
+      --max-w: 1240px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Poppins', system-ui, sans-serif;
+      color: var(--dark);
+      background: var(--white);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+
+    /* le sezioni non finiscono sotto l'header fisso quando si scrolla */
+    section { scroll-margin-top: var(--header-h); }
+
+    .container { width: 100%; max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+
+    /* =========================================================
+       HEADER / MENU
+       ========================================================= */
+    .header {
+      position: fixed; inset: 0 0 auto 0;
+      height: var(--header-h);
+      z-index: 100;
+      transition: background .3s ease, box-shadow .3s ease, height .3s ease;
+    }
+    .header.scrolled {
+      height: 76px;
+      background: rgba(20, 20, 20, .96);
+      box-shadow: 0 4px 20px rgba(0,0,0,.35);
+    }
+    .header .container {
+      height: 100%;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .logo img { height: 50px; width: auto; transition: height .3s ease; }
+    .header.scrolled .logo img { height: 42px; }
+
+    .nav ul { list-style: none; display: flex; gap: 48px; }
+    .nav a {
+      color: var(--white);
+      font-weight: 600; font-size: 1.05rem;
+      position: relative; padding: 6px 0;
+    }
+    .nav a::after {
+      content: ''; position: absolute; left: 0; bottom: 0;
+      width: 0; height: 2px; background: var(--red);
+      transition: width .25s ease;
+    }
+    .nav a:hover::after, .nav a.active::after { width: 100%; }
+
+    /* hamburger (solo mobile) */
+    .burger {
+      display: none;
+      width: 44px; height: 44px;
+      background: none; border: 0; cursor: pointer;
+      position: relative; z-index: 120;
+    }
+    .burger span {
+      position: absolute; left: 10px; right: 10px; height: 2px;
+      background: var(--white); border-radius: 2px;
+      transition: transform .3s ease, opacity .2s ease;
+    }
+    .burger span:nth-child(1) { top: 14px; }
+    .burger span:nth-child(2) { top: 21px; }
+    .burger span:nth-child(3) { top: 28px; }
+    .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .burger.open span:nth-child(2) { opacity: 0; }
+    .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* =========================================================
+       HERO
+       ========================================================= */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      min-height: 100svh;
+      display: flex; align-items: center;
+      color: var(--white);
+      overflow: hidden;
+      background: var(--dark) url('images/hero-background.png') center / cover no-repeat;
+      /* ↑ PLACEHOLDER: sostituisci con il percorso della tua immagine */
+    }
+
+    /* velo scuro per leggere il testo */
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.35) 45%, rgba(0,0,0,.7) 100%);
+      z-index: 1;
+    }
+
+    /* tagli rossi diagonali come nel layout */
+    .hero__slash {
+      position: absolute; z-index: 1;
+      background: var(--red);
+      pointer-events: none;
+    }
+    .hero__slash--left {
+      left: 0; bottom: 0; width: 22%; height: 38%;
+      clip-path: polygon(0 0, 100% 100%, 0 100%);
+      opacity: .9;
+    }
+    .hero__slash--right {
+      right: 0; top: 0; width: 18%; height: 30%;
+      clip-path: polygon(0 0, 100% 0, 100% 100%);
+      opacity: .9;
+    }
+    .hero__slash--line {
+      left: 8%; top: 0; width: 4px; height: 140%;
+      transform: rotate(32deg); transform-origin: top left;
+      opacity: .6;
+    }
+
+    .hero__content {
+      position: relative; z-index: 2;
+      text-align: center;
+      padding: calc(var(--header-h) + 40px) 0 160px;
+    }
+
+    .hero__logo { height: 190px; width: auto; margin: 0 auto 28px; }
+
+    .hero__title {
+      font-weight: 900;
+      font-size: clamp(2.3rem, 7vw, 5.2rem);
+      line-height: 1.05;
+      letter-spacing: -.02em;
+      text-shadow: 0 4px 24px rgba(0,0,0,.5);
+      margin-bottom: 24px;
+    }
+
+    .hero__subtitle {
+      max-width: 820px; margin: 0 auto 40px;
+      font-weight: 500;
+      font-size: clamp(1rem, 1.6vw, 1.2rem);
+      text-shadow: 0 2px 10px rgba(0,0,0,.6);
+    }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--red); color: var(--white);
+      font-family: inherit; font-weight: 700; font-size: 1.05rem;
+      text-transform: uppercase; letter-spacing: .02em;
+      padding: 18px 40px;
+      border: 0; border-radius: var(--radius);
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(227, 6, 19, .45);
+      transition: background .2s ease, transform .2s ease;
+    }
+    .btn:hover { background: var(--red-dark); transform: translateY(-2px); }
+    .btn svg { width: 22px; height: 22px; flex: 0 0 22px; }
+
+    .btn--wa { background: #25d366; box-shadow: 0 10px 30px rgba(37, 211, 102, .4); }
+    .btn--wa:hover { background: #1ebe5a; }
+
+    .btn-group { display: flex; flex-wrap: wrap; gap: 16px; }
+    .hero .btn-group { justify-content: center; }
+
+    /* =========================================================
+       4 PUNTI DI FORZA (sotto l'hero)
+       ========================================================= */
+    .features {
+      position: relative; z-index: 5;
+      margin-top: -110px;
+      padding-bottom: 60px;
+      background: linear-gradient(180deg, transparent 0, transparent 110px, var(--dark-2) 110px);
+    }
+    .features__grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .feature {
+      display: flex; gap: 16px;
+      background: var(--light);
+      padding: 32px 26px;
+      border-right: 1px solid #dcdcdc;
+    }
+    .feature:last-child { border-right: 0; }
+    .feature--highlight { background: var(--red); color: var(--white); border-right: 0; }
+
+    .feature__icon {
+      flex: 0 0 48px; height: 48px;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      background: var(--white); color: var(--red);
+    }
+    .feature--highlight .feature__icon { background: var(--white); color: var(--red); }
+    .feature__icon svg { width: 24px; height: 24px; }
+
+    .feature h3 {
+      font-weight: 800; font-size: 1.1rem; line-height: 1.25;
+      margin-bottom: 8px;
+    }
+    .feature p { font-size: .88rem; color: var(--grey); }
+    .feature--highlight p { color: rgba(255,255,255,.92); }
+
+    /* =========================================================
+       SERVIZI
+       ========================================================= */
+    .services {
+      padding: 110px 0 60px;
+      background: #f7f7f7;
+    }
+    .section-head { text-align: center; max-width: 760px; margin: 0 auto 80px; }
+    .section-head h2 {
+      font-weight: 800;
+      font-size: clamp(2rem, 4.5vw, 3.2rem);
+      line-height: 1.1;
+      margin-bottom: 14px;
+    }
+    .section-head p { color: var(--grey); font-size: clamp(1rem, 1.4vw, 1.1rem); }
+
+    .service {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      align-items: center;
+      gap: 70px;
+      margin-bottom: 110px;
+    }
+    .service:last-child { margin-bottom: 40px; }
+
+    /* alterna immagine sinistra / destra */
+    .service:nth-of-type(even) .service__media { order: 2; }
+
+    .service__media img {
+      width: 100%;
+      height: auto;
+    }
+
+    .service__label {
+      display: block;
+      color: var(--red);
+      font-weight: 800; font-size: .95rem;
+      text-transform: uppercase; letter-spacing: .04em;
+      margin-bottom: 6px;
+    }
+    .service__title {
+      font-weight: 800;
+      font-size: clamp(1.6rem, 3vw, 2.3rem);
+      line-height: 1.15;
+      margin-bottom: 18px;
+    }
+    .service__text { color: var(--grey); font-size: 1rem; line-height: 1.7; }
+
+    @media (max-width: 900px) {
+      .services { padding: 80px 0 40px; }
+      .section-head { margin-bottom: 56px; }
+      .service { grid-template-columns: 1fr; gap: 36px; margin-bottom: 80px; }
+      .service:nth-of-type(even) .service__media { order: 0; }
+    }
+
+    /* =========================================================
+       COME LAVORIAMO (3 step)
+       ========================================================= */
+    .process { padding: 110px 0; background: var(--white); }
+    .process .section-head { max-width: 900px; margin-bottom: 70px; }
+
+    .steps {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      position: relative;
+    }
+    .step { position: relative; }
+
+    .step__num {
+      position: relative; z-index: 2;
+      width: 64px; height: 64px;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      background: var(--red); color: var(--white);
+      font-weight: 700; font-size: 1.6rem;
+      margin-bottom: 36px;
+    }
+    .step:first-child .step__num { background: var(--dark); }
+    .step:last-child .step__num { box-shadow: 0 0 0 10px rgba(227, 6, 19, .15); }
+
+    /* linea di collegamento */
+    .step::before {
+      content: '';
+      position: absolute; z-index: 1;
+      top: 31px; left: 64px;
+      width: calc(100% + 40px - 64px); height: 2px;
+      background: var(--red);
+    }
+    .step:first-child::before { background: var(--dark); }
+
+    .step h3 { font-weight: 800; font-size: 1.25rem; line-height: 1.3; margin-bottom: 12px; }
+    .step p { color: var(--grey); font-size: .98rem; line-height: 1.7; max-width: 340px; }
+
+    @media (max-width: 900px) {
+      .process { padding: 80px 0; }
+      .process .section-head { margin-bottom: 50px; }
+      .steps { grid-template-columns: 1fr; gap: 0; }
+
+      /* timeline verticale */
+      .step { padding: 0 0 44px 88px; min-height: 64px; }
+      .step:last-child { padding-bottom: 0; }
+      .step__num { position: absolute; left: 0; top: 0; margin: 0; width: 56px; height: 56px; font-size: 1.4rem; }
+      .step::before { top: 56px; left: 27px; width: 2px; height: calc(100% - 56px); }
+      .step:last-child::before { display: none; }
+      .step h3 { padding-top: 12px; }
+      .step p { max-width: none; }
+    }
+
+    /* =========================================================
+       CHI SIAMO
+       ========================================================= */
+    .about {
+      padding: 110px 0;
+      background: var(--dark-2);
+      color: var(--white);
+    }
+    .about__grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      align-items: center;
+      gap: 70px;
+    }
+    .eyebrow {
+      display: block;
+      color: var(--red);
+      font-weight: 800; font-size: 1rem;
+      text-transform: uppercase; letter-spacing: .06em;
+      margin-bottom: 10px;
+    }
+    .about h2 {
+      font-weight: 800;
+      font-size: clamp(2rem, 4.5vw, 3.4rem);
+      line-height: 1.1;
+      margin-bottom: 32px;
+    }
+    .about__text p {
+      color: rgba(255,255,255,.8);
+      font-size: 1.02rem; line-height: 1.75;
+      margin-bottom: 16px;
+    }
+    .about__text strong { color: var(--white); font-weight: 700; }
+
+    .checklist { list-style: none; display: grid; gap: 16px; margin-top: 34px; }
+    .checklist li {
+      display: flex; align-items: center; gap: 14px;
+      font-weight: 500; font-size: 1.05rem;
+    }
+    .checklist svg { flex: 0 0 26px; width: 26px; height: 26px; }
+
+    .about__media { position: relative; padding-top: 40px; }
+    .about__media img {
+      width: 100%;
+      aspect-ratio: 4 / 3.4;
+      object-fit: cover;
+      border-radius: 10px;
+      background: #3a3a3a; /* visibile finché non c'è la foto */
+    }
+    .badge {
+      position: absolute; top: 0; left: -30px;
+      background: var(--red);
+      color: var(--white);
+      text-align: center;
+      padding: 18px 34px;
+      border: 4px solid var(--white);
+      border-radius: 10px;
+      box-shadow: 0 14px 30px rgba(0,0,0,.4);
+    }
+    .badge strong { display: block; font-size: 2.6rem; font-weight: 900; line-height: 1; }
+    .badge span { display: block; font-size: .78rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; margin-top: 6px; }
+
+    @media (max-width: 900px) {
+      .about { padding: 80px 0; }
+      .about__grid { grid-template-columns: 1fr; gap: 50px; }
+      .about__media { padding-top: 30px; }
+      .badge { left: 16px; padding: 14px 24px; }
+      .badge strong { font-size: 2rem; }
+      .badge span { font-size: .68rem; }
+    }
+
+    /* =========================================================
+       BANNER PRENOTA
+       ========================================================= */
+    .cta {
+      position: relative;
+      overflow: hidden;
+      background: var(--light);
+      color: var(--dark);
+    }
+    /* fascia rossa diagonale dietro la persona */
+    .cta::before {
+      content: '';
+      position: absolute; top: 0; bottom: 0;
+      left: 18%; width: 30%;
+      background: var(--red);
+      clip-path: polygon(0 0, 45% 0, 100% 100%, 55% 100%);
+      z-index: 0;
+    }
+    /* frecce rosse sul bordo destro */
+    .cta::after {
+      content: '';
+      position: absolute; right: 0; bottom: 0;
+      width: 160px; height: 70%;
+      background: var(--red);
+      clip-path: polygon(100% 0, 100% 100%, 0 100%, 55% 50%, 0 0);
+      opacity: .9;
+      z-index: 0;
+    }
+
+    .cta__grid {
+      position: relative; z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: end;
+      gap: 40px;
+      min-height: 520px;
+    }
+    .cta__media { align-self: end; }
+    .cta__media img {
+      width: 100%; max-width: 480px;
+      height: 520px;
+      object-fit: contain; object-position: bottom;
+      margin: 40px auto 0;
+    }
+    .cta__body { align-self: center; padding: 70px 0; padding-right: 120px; }
+    .cta h2 {
+      font-weight: 800;
+      font-size: clamp(2rem, 4.2vw, 3.2rem);
+      line-height: 1.1;
+      margin-bottom: 18px;
+    }
+    .cta .btn-group { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .cta .btn { width: 100%; max-width: 340px; justify-content: center; }
+    .cta p { color: var(--grey); font-size: 1.05rem; margin-bottom: 34px; }
+
+    @media (max-width: 900px) {
+      .cta::before { left: -10%; width: 80%; height: 330px; top: auto; bottom: 0; }
+      .cta::after { width: 90px; height: 160px; }
+      .cta__grid { grid-template-columns: 1fr; gap: 0; min-height: 0; text-align: center; }
+      .cta__body { order: -1; padding: 70px 0 10px; }
+      .cta__media img { max-width: 300px; height: 340px; margin-top: 20px; }
+      .cta .btn-group { align-items: center; }
+    }
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+    @media (max-width: 1024px) {
+      .nav ul { gap: 28px; }
+      .features__grid { grid-template-columns: repeat(2, 1fr); }
+      .feature:nth-child(2) { border-right: 0; }
+      .feature:nth-child(-n+2) { border-bottom: 1px solid #dcdcdc; }
+      .feature--highlight { border-bottom-color: var(--red) !important; }
+    }
+
+    @media (max-width: 768px) {
+      :root { --header-h: 68px; }
+
+      .header { background: rgba(20,20,20,.92); }
+      .logo img, .header.scrolled .logo img { height: 36px; }
+      .header.scrolled { height: var(--header-h); }
+
+      .burger { display: block; }
+
+      .nav {
+        position: fixed; inset: 0;
+        background: var(--dark);
+        display: flex; align-items: center; justify-content: center;
+        transform: translateX(100%);
+        transition: transform .35s ease;
+        z-index: 110;
+      }
+      .nav.open { transform: translateX(0); }
+      .nav ul { flex-direction: column; align-items: center; gap: 32px; }
+      .nav a { font-size: 1.6rem; }
+
+      .hero__slash--left { width: 40%; height: 22%; }
+      .hero__slash--right { width: 35%; height: 18%; }
+      .hero__content { padding-bottom: 130px; }
+      .hero__logo { height: 140px; margin-bottom: 22px; }
+
+      .btn-group { flex-direction: column; align-items: center; gap: 12px; }
+      .btn { width: 100%; max-width: 360px; justify-content: center; padding: 17px 24px; }
+
+      .features { margin-top: -80px; background: linear-gradient(180deg, transparent 0, transparent 80px, var(--dark-2) 80px); }
+      .features__grid { grid-template-columns: 1fr; }
+      .feature { border-right: 0 !important; border-bottom: 1px solid #dcdcdc; padding: 24px 20px; }
+      .feature:last-child { border-bottom: 0; }
+    }
+
+    /* =========================================================
+       FOOTER
+       ========================================================= */
+    .footer { background: #000; color: rgba(255,255,255,.75); padding: 70px 0 0; font-size: .95rem; }
+    .footer__logo { display: block; width: fit-content; margin: 0 auto 50px; }
+    .footer__logo img { height: 140px; width: auto; }
+
+    .footer__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      text-align: center;
+      padding-bottom: 50px;
+    }
+    .footer h4 {
+      color: var(--white);
+      font-size: .85rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .1em;
+      margin-bottom: 14px;
+    }
+    .footer h4::after {
+      content: ''; display: block;
+      width: 30px; height: 2px; background: var(--red);
+      margin: 10px auto 0;
+    }
+    .footer p { line-height: 1.8; }
+    .footer a { transition: color .2s ease; }
+    .footer a:hover { color: var(--red); }
+    .footer strong { color: var(--white); font-weight: 600; }
+
+    .footer__bottom {
+      border-top: 1px solid #222;
+      padding: 22px 0;
+      font-size: .82rem;
+      color: rgba(255,255,255,.5);
+    }
+    .footer__bottom .container {
+      display: flex; flex-wrap: wrap; gap: 10px 24px;
+      justify-content: space-between; align-items: center;
+    }
+    .footer__legal { display: flex; gap: 20px; }
+
+    @media (max-width: 768px) {
+      .footer { padding-top: 56px; }
+      .footer__logo img { height: 110px; }
+      .footer__grid { grid-template-columns: 1fr; gap: 34px; }
+      .footer__bottom .container { flex-direction: column; text-align: center; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =====================================================
+       HEADER
+       ===================================================== -->
+  <header class="header" id="header">
+    <div class="container">
+      <a href="#home" class="logo" aria-label="LM Autoservice – torna all'inizio">
+        <img src="images/logo.png" alt="LM Autoservice – Meccanica, Elettronica, Gommista">
+      </a>
+
+      <nav class="nav" id="nav" aria-label="Menu principale">
+        <ul>
+          <li><a href="#home" class="active">Home</a></li>
+          <li><a href="#servizi">Servizi</a></li>
+          <li><a href="#chi-siamo">Chi siamo</a></li>
+          <li><a href="#contatti">Contatti</a></li>
+        </ul>
+      </nav>
+
+      <button class="burger" id="burger" aria-label="Apri menu" aria-expanded="false" aria-controls="nav">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- =====================================================
+         1. HERO
+         ===================================================== -->
+    <section class="hero" id="home">
+      <span class="hero__slash hero__slash--left" aria-hidden="true"></span>
+      <span class="hero__slash hero__slash--right" aria-hidden="true"></span>
+      <span class="hero__slash hero__slash--line" aria-hidden="true"></span>
+
+      <div class="container hero__content">
+        <img class="hero__logo" src="images/lm-auto-logo.png" alt="LM Autoservice – Meccanica, Elettronica, Gommista">
+        <h1 class="hero__title">La tua auto, senza sorprese.</h1>
+        <p class="hero__subtitle">
+          Dalla manutenzione ordinaria alla diagnosi elettronica, ci prendiamo cura della tua auto
+          con professionalità, attenzione e soluzioni su misura.
+        </p>
+        <div class="btn-group">
+          <!-- EMAIL -->
+          <a class="btn" href="mailto:ufficio@lmautoservice.it?subject=Richiesta%20appuntamento">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+            Prenota via email
+          </a>
+          <!-- WHATSAPP – PLACEHOLDER: sostituisci 39XXXXXXXXXX con il numero (prefisso 39, senza + né spazi) -->
+          <a class="btn btn--wa" href="https://wa.me/39XXXXXXXXXX?text=Ciao%2C%20vorrei%20prenotare%20un%20appuntamento" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1 2.7.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>
+            Prenota su WhatsApp
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 punti di forza -->
+    <div class="features">
+      <div class="container">
+        <div class="features__grid">
+
+          <article class="feature feature--highlight">
+            <div class="feature__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg>
+            </div>
+            <div>
+              <h3>Competenza e professionalità</h3>
+              <p>Ogni intervento viene affrontato con attenzione e competenza, per offrirti un servizio curato e affidabile.</p>
+            </div>
+          </article>
+
+          <article class="feature">
+            <div class="feature__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/><path d="M6 11h2l1.5-3 2 5 1.5-2h5"/></svg>
+            </div>
+            <div>
+              <h3>Diagnosi e tecnologia</h3>
+              <p>Utilizziamo strumenti diagnostici per individuare i problemi e trovare la soluzione più adatta alla tua auto.</p>
+            </div>
+          </article>
+
+          <article class="feature">
+            <div class="feature__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 0 0-9 9c0 2.2.8 4.2 2.1 5.8h13.8A9 9 0 0 0 12 3z"/><path d="M12 13l4-4"/><circle cx="12" cy="13" r="1.3"/></svg>
+            </div>
+            <div>
+              <h3>Qualità e trasparenza</h3>
+              <p>Ti spieghiamo gli interventi necessari e le possibili soluzioni, con la massima chiarezza.</p>
+            </div>
+          </article>
+
+          <article class="feature">
+            <div class="feature__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h-1a1 1 0 0 1-1-1v-3l2-5h11l3 5h1a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-1"/><circle cx="7.5" cy="17.5" r="2"/><circle cx="16.5" cy="17.5" r="2"/><path d="M9.5 17.5h5"/></svg>
+            </div>
+            <div>
+              <h3>Un servizio su misura</h3>
+              <p>Ogni auto ha le sue esigenze. Per questo valutiamo ogni caso con attenzione, senza soluzioni standard.</p>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- =====================================================
+         2. SERVIZI  (prossimo step)
+         ===================================================== -->
+    <section class="services" id="servizi">
+      <div class="container">
+
+        <header class="section-head">
+          <h2>I nostri servizi</h2>
+          <p>Dalla manutenzione alla riparazione, ci occupiamo della tua auto con attenzione e professionalità.</p>
+        </header>
+
+        <!-- SERVIZIO 1 -->
+        <article class="service">
+          <div class="service__media">
+            <!-- PLACEHOLDER: foto servizio 1 -->
+            <img src="images/service1.png" alt="Meccanico al lavoro su freno e disco" loading="lazy">
+          </div>
+          <div class="service__body">
+            <span class="service__label">Servizio 1</span>
+            <h3 class="service__title">Meccanica e meccatronica</h3>
+            <p class="service__text">
+              Dalla manutenzione ordinaria agli interventi di riparazione, ci prendiamo cura della tua auto
+              in ogni sua componente. Grazie alla diagnosi elettronica possiamo individuare eventuali anomalie
+              e valutare gli interventi più adatti per mantenere la tua vettura efficiente e sicura.
+            </p>
+          </div>
+        </article>
+
+        <!-- SERVIZIO 2 -->
+        <article class="service">
+          <div class="service__media">
+            <!-- PLACEHOLDER: foto servizio 2 -->
+            <img src="images/service2.png" alt="Pneumatici e assetto auto" loading="lazy">
+          </div>
+          <div class="service__body">
+            <span class="service__label">Servizio 2</span>
+            <h3 class="service__title">Pneumatici e assetti</h3>
+            <p class="service__text">
+              <!-- DA COMPLETARE: incolla qui la prima frase della descrizione attuale (fino al punto) -->
+              [Prima frase della descrizione attuale.]
+              Ti aiutiamo nella scelta, nel controllo e nell'assetto più adeguato della tua auto,
+              per garantirti comfort e affidabilità in ogni stagione.
+            </p>
+          </div>
+        </article>
+
+        <!-- SERVIZIO 3 -->
+        <article class="service">
+          <div class="service__media">
+            <!-- PLACEHOLDER: foto servizio 3 -->
+            <img src="images/service3.png" alt="Impianto GPL e metano" loading="lazy">
+          </div>
+          <div class="service__body">
+            <span class="service__label">Servizio 3</span>
+            <h3 class="service__title">GPL – Metano</h3>
+            <p class="service__text">
+              Revisione, riparazioni e manutenzione dell'impianto GPL e metano.
+            </p>
+          </div>
+        </article>
+
+        <!-- SERVIZIO 4 -->
+        <article class="service">
+          <div class="service__media">
+            <!-- PLACEHOLDER: foto servizio 4 -->
+            <img src="images/service4.png" alt="Cambio automatico" loading="lazy">
+          </div>
+          <div class="service__body">
+            <span class="service__label">Servizio 4</span>
+            <h3 class="service__title">Cambi automatici</h3>
+            <p class="service__text">
+              Manutenzione e riparazioni hardware e software.
+            </p>
+          </div>
+        </article>
+
+        <!-- SERVIZIO 5 -->
+        <article class="service">
+          <div class="service__media">
+            <!-- PLACEHOLDER: foto servizio 5 -->
+            <img src="images/service5.png" alt="Controlli pre-revisione del veicolo" loading="lazy">
+          </div>
+          <div class="service__body">
+            <span class="service__label">Servizio 5</span>
+            <h3 class="service__title">Preparazione e controlli pre&#8209;revisione</h3>
+            <p class="service__text">
+              Servizio di check-up pre-revisione per verificare lo stato del veicolo ed evitare
+              bocciature alla prova ministeriale.
+            </p>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- =====================================================
+         3. COME LAVORIAMO
+         ===================================================== -->
+    <section class="process" id="come-lavoriamo">
+      <div class="container">
+
+        <header class="section-head">
+          <h2>Un servizio semplice, chiaro e trasparente.</h2>
+          <p>Ci prendiamo cura della tua auto seguendo ogni fase con attenzione, dalla prima richiesta alla riconsegna.</p>
+        </header>
+
+        <ol class="steps">
+          <li class="step">
+            <span class="step__num" aria-hidden="true">1</span>
+            <h3>Ascoltiamo le tue esigenze</h3>
+            <p>Ci racconti cosa succede alla tua auto o di quale intervento hai bisogno. Ascoltiamo le tue necessità per capire da dove iniziare.</p>
+          </li>
+          <li class="step">
+            <span class="step__num" aria-hidden="true">2</span>
+            <h3>Controllo e diagnosi</h3>
+            <p>Analizziamo la situazione e individuiamo gli eventuali problemi, valutando gli interventi necessari e le possibili soluzioni.</p>
+          </li>
+          <li class="step">
+            <span class="step__num" aria-hidden="true">3</span>
+            <h3>Intervento e assistenza</h3>
+            <p>Procediamo con il lavoro concordato, con attenzione e professionalità. Il nostro obiettivo è farti tornare su strada in tranquillità.</p>
+          </li>
+        </ol>
+
+      </div>
+    </section>
+
+    <!-- =====================================================
+         4. CHI SIAMO  (prossimo step)
+         ===================================================== -->
+    <section class="about" id="chi-siamo">
+      <div class="container about__grid">
+
+        <div class="about__text">
+          <span class="eyebrow">Chi siamo</span>
+          <h2>Passione per i motori, attenzione per ogni cliente.</h2>
+
+          <p>
+            LM Autoservice nasce con un obiettivo preciso: offrire un punto di riferimento affidabile
+            per chi desidera prendersi cura della propria auto. Ci occupiamo di
+            <strong>meccanica</strong>, <strong>elettronica</strong> e <strong>pneumatici</strong>,
+            mettendo al centro la qualità del lavoro e il rapporto con il cliente.
+          </p>
+          <p>
+            Crediamo nell'importanza di ascoltare, spiegare con chiarezza e trovare la soluzione più adatta
+            a ogni esigenza. Perché un buon servizio non significa soltanto riparare un'auto, ma far sentire
+            ogni cliente in buone mani.
+          </p>
+
+          <ul class="checklist">
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#e30613"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Professionalità e attenzione
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#e30613"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Trasparenza in ogni intervento
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#e30613"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Cura per ogni tipo di vettura
+            </li>
+          </ul>
+        </div>
+
+        <div class="about__media">
+          <!-- PLACEHOLDER: foto officina / meccanico -->
+          <img src="images/experience.png" alt="Meccanico di LM Autoservice al lavoro in officina" loading="lazy">
+          <div class="badge">
+            <strong>20+</strong>
+            <span>Anni di esperienza</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =====================================================
+         CONTATTI / PRENOTA
+         ===================================================== -->
+    <section class="cta" id="contatti">
+      <div class="container cta__grid">
+        <div class="cta__media">
+          <!-- PLACEHOLDER: foto meccanico SCONTORNATA (PNG con sfondo trasparente) -->
+          <img src="images/mechanic.png" alt="Meccanico di LM Autoservice con chiavi inglesi" loading="lazy">
+        </div>
+        <div class="cta__body">
+          <span class="eyebrow">Hai bisogno di assistenza?</span>
+          <h2>Prenota il tuo appuntamento!</h2>
+          <p>Scegli il giorno e l'orario più comodi per te. Ti aspettiamo da LM Autoservice!</p>
+          <div class="btn-group">
+          <!-- EMAIL -->
+          <a class="btn" href="mailto:ufficio@lmautoservice.it?subject=Richiesta%20appuntamento">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+            Prenota via email
+          </a>
+          <!-- WHATSAPP – PLACEHOLDER: sostituisci 39XXXXXXXXXX con il numero (prefisso 39, senza + né spazi) -->
+          <a class="btn btn--wa" href="https://wa.me/39XXXXXXXXXX?text=Ciao%2C%20vorrei%20prenotare%20un%20appuntamento" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1 2.7.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>
+            Prenota su WhatsApp
+          </a>
+        </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =====================================================
+       FOOTER
+       ===================================================== -->
+  <footer class="footer">
+    <div class="container">
+      <a href="#home" class="footer__logo" aria-label="LM Autoservice – torna all'inizio">
+        <img src="images/lm-auto-logo.png" alt="LM Autoservice – Meccanica, Elettronica, Gommista" loading="lazy">
+      </a>
+
+      <div class="footer__grid">
+        <div>
+          <h4>Sede</h4>
+          <p>
+            <strong>LM Autoservice di Mattia Gardini &amp; C. SNC</strong><br>
+            <a href="https://www.google.com/maps/search/?api=1&amp;query=Via+Statale+13+41014+Castelvetro+di+Modena+MO" target="_blank" rel="noopener">
+              Via Statale n. 13<br>41014 Castelvetro di Modena (MO)
+            </a>
+          </p>
+        </div>
+
+        <div>
+          <h4>Contatti</h4>
+          <p>
+            <!-- PLACEHOLDER: inserisci i numeri (nel link: +39 senza spazi) -->
+            Telefono: <a href="tel:+39XXXXXXXXXX">+39 XXX XXX XXXX</a><br>
+            Cellulare: <a href="tel:+39XXXXXXXXXX">+39 XXX XXX XXXX</a><br>
+            Email: <a href="mailto:ufficio@lmautoservice.it">ufficio@lmautoservice.it</a>
+          </p>
+        </div>
+
+        <div>
+          <h4>Dati aziendali</h4>
+          <p>
+            Codice fiscale, Partita IVA e<br>Iscrizione R.I. Modena: 04285130367<br>
+            Numero REA: MO-458054
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <div class="container">
+        <span>&copy; <span id="year">2026</span> LM Autoservice di Mattia Gardini &amp; C. SNC – Tutti i diritti riservati.</span>
+        <nav class="footer__legal" aria-label="Note legali">
+          <a href="pages/privacy-policy.html">Privacy Policy</a>
+          <a href="pages/cookie-policy.html">Cookie Policy</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      document.getElementById('year').textContent = new Date().getFullYear();
+      const header  = document.getElementById('header');
+      const burger  = document.getElementById('burger');
+      const nav     = document.getElementById('nav');
+      const links   = nav.querySelectorAll('a');
+
+      /* header scuro dopo lo scroll */
+      const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 40);
+      onScroll();
+      window.addEventListener('scroll', onScroll, { passive: true });
+
+      /* menu mobile */
+      const toggleMenu = (open) => {
+        nav.classList.toggle('open', open);
+        burger.classList.toggle('open', open);
+        burger.setAttribute('aria-expanded', open);
+        document.body.style.overflow = open ? 'hidden' : '';
+      };
+      burger.addEventListener('click', () => toggleMenu(!nav.classList.contains('open')));
+      links.forEach(a => a.addEventListener('click', () => toggleMenu(false)));
+
+      /* voce di menu attiva in base alla sezione visibile */
+      const sections = [...links].map(a => document.querySelector(a.getAttribute('href')));
+      const spy = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+          }
+        });
+      }, { rootMargin: '-45% 0px -50% 0px' });
+      sections.forEach(s => s && spy.observe(s));
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleMenu(false); });
+    })();
+  </script>
+</body>
+</html>
